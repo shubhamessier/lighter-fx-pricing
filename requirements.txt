@@ -1,0 +1,8 @@
+requests
+pandas
+numpy
+tenacity
+statsmodels
+matplotlib
+seaborn
+yfinance
