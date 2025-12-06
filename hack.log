@@ -1,33 +1,58 @@
-Okay let the hack begin, 
+let the hack begin.
 
-there are a few things I have to figure out, to get lighter’s market data, get spot fx data and get the crypto data for checking correlation.
+Here's what I'm doing, fetching Lighter's market data, pulling spot FX data, and getting oracle data from Pyth to check correlations. Then I'll calculate drift, clamps, and triangular price arbitrage for EUR/USD.
 
-The rest two don’t seem that tough to do, I’ll focus on the lighter market data fetch.
+The last two should be straightforward. Main focus right now is getting Lighter's market data.
 
-Should I run a forward looking indexer? Maybe I can, but I don’t think I should, it’ll require an active web socket connection and the indexing has to happen for a long time the chances of it breaking are higher, i can do it later once I have the historical indexer figured out.
+Should I run a forward-looking indexer? I could, but probably shouldn't. It needs an active websocket connection and has to index continuously—higher chance of breaking. I'll do that later once I've got the historical indexer working.
 
-As mentinoed I have to get the price updates, I need to find the lighter’s smart contract which manages that, which has oracle price update events.
+I need price updates. That means finding Lighter's smart contract that handles oracle price update events.
 
-Update: I looked for the smart contract on arbiscan but couldn’t find any, I found two differnt smart contracts but none of them handles price updates. What am I missing? Am I looking at the wrong place for it.
+Update: searched Arbiscan for the contract. Found ZK Lighter and Lighter Fast CCP, but neither handles price updates. What am I missing? Wrong place to look?
 
-Maybe the best way to find out is asking people who built it, again a quant research project it is.
+Maybe I should just ask the people who built it. Turning into a bit of a research project.
 
-Update: I went to lighter’s telegram channel and asked for the contract address, nobody seemed to knew, the channel isn’t really useful for me right now. What else?
+Tried Lighter's Telegram channel, asked for the contract address. Nobody knew. Channel's useless for this.
 
-Let me check their discord.
+Let me check Discord.
 
-Update: I opened a ticket on their discord the support team responded and provided me lighter’s mainnet contract address but that didn’t had the price updates either. And they closed my ticket.
+Opened a ticket on Discord. Support responded with Lighter's mainnet contract address, but still no price updates. They closed my ticket.
 
-I tried a ticket again but I got flagged, ticket admin asked me about my project and what I’m building, they’re suspicious, but why? Isn’t the idea of decentralisation to be open and transparent. They don’t want to me see it i guess.
+Opened another ticket. Got flagged. Admin's asking about my project and what I'm building. They're suspicious. Why? Isn't decentralization supposed to be open and transparent?
 
-Alright I’ll capture data from lighter’s api, it requires 5USDC that should be cool.
+Found out price updates don't happen onchain for Lighter—they're done offchain by a sequencer.
 
-Aight, I discoverd their sdk let me try installing it and start using it.
+Fine. I'll capture data from Lighter's API. Costs 5 USDC. Should be fine.
 
-They use torch and ML libraries at backend, lazy way of using mathematics.
+Discovered their SDK. Installing it now.
 
-No problem, I finally found the api I’ve been looking for. Aha I’m able to get the data I wanted, sweet. I have data for markets I’ve needed, probably need to invert JPY/USD market data but that shouldn’t be a big deal.
+They use PyTorch and ML libraries on the backend. Lazy way to do math.
 
-Okay now I’ll add the other data I needed, lemme use yahoo finance to fetch the market data for weekdays.
+Finally found the API I needed. I can fetch the data now for all the pairs I wanted. Sweet. Have data for the markets I need. Probably need to invert JPY/USD market data, but that's not a big deal.
 
-I’ll get some magnesium less sleep is slowing me down.. I’ll continue after some time..
+Can finally fetch all Lighter data. Shouldn't have wasted time hunting for that contract. Moving on.
+
+Next is spot FX data. I'll use Yahoo Finance. Done.
+
+Taking some magnesium, sleep is catching up. I'll continue after.
+
+Now I need oracle data from Pyth Network. Using Pyth for this.
+
+Got all the data. Now I can calculate triangular arbitrage price for EUR/USD. Both are comparable to BTC price, so EUR/USD = (BTC/USD)/(BTC/EUR).
+
+More math. I can calculate drift now with the last price updates from spot FX. At the same time, I'll write the formula for clamps.
+
+findings:-
+
+as expected the prices don't freeze on weekends and the weekend volatality (0.0360%) and weekdays volatality (0.0363%)  are near comparable.
+
+Drift was particularly interesting to see, mean deviation came about ~0.10% from the anchor price and a maximum of ~0.67% 
+
+what we can do:-
+
+- We should use pyth feed as primary source for prices
+
+- Weekend pricing can be derived from high-liquid crypto pairs, for e.g. (BTC/USD)/(BTC/EUR) 
+
+- Clamps: A clamp of +-1% to prevent massive crypto drawdowns (which is what I found from lighter's price analysis) which is the same clamp as lighter uses.
+
